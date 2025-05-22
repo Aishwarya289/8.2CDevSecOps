@@ -35,19 +35,22 @@ pipeline {
         sh 'npm audit || true'
       }
     }
-
-    stage('SonarCloud Analysis') {
-  environment {
-    SONAR_TOKEN = credentials('SONAR_TOKEN')
-  }
+stage('SonarCloud Analysis') {
   steps {
-    sh '''
-      wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.8.0.2856-linux.zip
-      unzip sonar-scanner-cli-*.zip
-      ./sonar-scanner-*/bin/sonar-scanner
-    '''
+    withCredentials([string(credentialsId: 'SONAR_TOKEN', variable: 'SONAR_TOKEN')]) {
+      sh '''
+        curl -sSLo sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.8.0.2856-linux.zip
+        unzip sonar-scanner.zip
+        export PATH=$PATH:$PWD/sonar-scanner-4.8.0.2856-linux/bin
+        sonar-scanner -Dsonar.login=$SONAR_TOKEN
+      '''
+    }
   }
 }
 
-  }
+    
 }
+
+
+  }
+
