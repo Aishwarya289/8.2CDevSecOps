@@ -1,0 +1,49 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git url: 'https://github.com/Aishwarya289/8.2CDevSecOps.git', branch: 'main'
+            }
+        }
+
+        stage('Install Dependencies') {
+            steps {
+                sh 'npm install'
+            }
+        }
+
+ stage('Run Tests') {
+  steps {
+    catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+      sh 'npm test || true'
+    }
+  }
+}
+
+stage('Generate Coverage Report') {
+  steps {
+    sh 'npm run coverage || true'
+  }
+}
+
+stage('NPM Audit (Security Scan)') {
+  steps {
+    catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+      sh 'npm audit || true'
+    }
+  }
+}
+
+
+    post {
+        success {
+            emailext(
+                subject: " Build Successful - ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                body: "Build completed successfully.\nDetails: ${env.BUILD_URL}",
+                to: 'aishwaryar774@gmail.com'
+            )
+        }
+    }
+}
