@@ -16,7 +16,7 @@ pipeline {
 
     stage('Run Tests') {
       steps {
-        sh 'npm test || true'  // allow pipeline to continue
+        sh 'npm test || true'  
       }
       post {
         success {
